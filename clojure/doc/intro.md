@@ -1,41 +1,72 @@
-# Introduction to dangeru-clj
+# dangeru-clj
 
-This is just a clojure wrapper for the [Danger/u/](https://dangeru.us) API. As such, this file only covers how to use the clojure library. If you have any questions about how to use the API after reading this, consult [the official guide.](https://github.com/naomiEve/dangeruAPI)
+A clojure wrapper for the danger/u/ 2.0 API
 
-# Functions and Usage:
+# Requirements:
 
-**Including this in a program**
+A working internet connection, and lein should install the rest. If it doesn't (or you just don't want to use lein for whatever reason):  
+-clj-http 2.0.0  
+-clojure 1.8.0  
+-cheshire 5.6.1  
+  
+To use this with an older or newer version of any of the above, modify project.clj and know that you're on your own
+
+# Functions:
 
 ```clojure
-(ns my-program.core
+(dangeru/index boardname)
+(dangeru/index boardname page)
+```
+
+```clojure
+(dangeru/thread-replies threadid)
+```
+
+```clojure
+(dangeru/thread-metadata threadid)
+```
+
+```clojure
+(dangeru/new-thread board title comment)
+```
+
+```clojure
+(dangeru/reply board parent content)
+```
+
+# Usage
+
+**Including it in a program**
+
+```clojure
+(ns my-dangeru-program.core
   (:require [dangeru-clj.dangeru :as dangeru]))
 ```
 
-**Get the (length) most recently updated threads from a board as a clojure map**
-
+**Getting the last 20 threads on /u/** (as clojure map)
 ```clojure
-(dangeru/index boardname length)
+(dangeru/index "u" 0)
 ```
 
-**Get the first (length) posts from a given thread on a given board as a clojure map**
-
+**Getting the replies to a thread** (as clojure map)
 ```clojure
-(dangeru/thread boardname length threadid)
+(dangeru/thread-replies 1000)
 ```
 
-#Examples:
-
+**Start a new thread on tech** (returns http status: 200 means all is well)
 ```clojure
-;; Get the top 5 threads from /u/ as a map (note the lack of slashes around the boardname)
-(dangeru/index "u" 5)
+(dangeru/new-thread "tech" "About the clojure API wrapper" "Does anyone use it?")
 ```
 
+**Reply to a thread on test** (returns http status: 200 means it worked)
 ```clojure
-;; Get the first post from thread 100 on /new/ as a map
-(dangeru/thread "new" 1 100)
+(dangeru/reply "test" 51597 "Testerooni")
 ```
 
-```clojure
-;; Get just the text from the first post of thread 100 on /new/
-(:post (first (:replies (dangeru/thread "new" 1 100))))
-```
+# Additional resources
+
+[![Clojars Project](https://img.shields.io/clojars/v/dangeru-clj.svg)](https://clojars.org/dangeru-clj)  
+[Official API Guide](https://github.com/dangeru/awoo-API)  
+[C# Wrapper](https://github.com/Mark9870/dangeru-net)  
+[Other Wrappers (soon to include this one)](https://github.com/dangeru/api-wrappers)  
+[Danger/u/](https://dangeru.us/)  

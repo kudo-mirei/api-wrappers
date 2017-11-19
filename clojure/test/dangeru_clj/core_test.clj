@@ -4,25 +4,27 @@
 
 (deftest index-test
   (testing "index" 
-    ;; There are more than 5 threads on /u/, so these should be different
-    (is (not= (dangeru/index "u" 5)(dangeru/index "u" 6)))
+    ;; There are multiple pages on /u/, so these should be different
+    (is (not= (dangeru/index "u")(dangeru/index "u" 1)))
     ;; However, the board's name and url shouldn't change
-    (is (= (:board (dangeru/index "u" 5)(dangeru/index "u" 6))))
+    (is (= (:board (nth (dangeru/index "u") 0)) (:board (nth (dangeru/index "u" 6) 0))))
     ;; Make sure that we're getting /u/ when we ask for /u/
-    (is (= (:name (first (:board (dangeru/index "u" 5))))) "/u/")
+    (is (= (:board (nth (dangeru/index "u" 0) 0)) "u"))
     ;; Make sure we can request other boards
-    (is (not= (dangeru/index "u" 5)(dangeru/index "new" 5)))
+    (is (not= (dangeru/index "u")(dangeru/index "new")))
     ;; Make sure we're actually getting other boards when we request them
-    (is (not= (dangeru/index "new" 5) nil))))
-
+    (is (not= (dangeru/index "new") nil))))
 (deftest thread-test
-  (testing "thread"
-    ;; Thread 1000 has more than 5 posts, so these should differ
-    (is (not= (dangeru/thread "u" 5 1000) (dangeru/thread "u" 6 1000)))
-    ;; Make sure we get the thread we ask for
-    (is (= (:id (first (:meta (dangeru/thread "u" 5 1000))) 1000)))
-    ;; Make sure the above doesn't just apply to /u/
-    (is (= (:id (first (:meta (dangeru/thread "new" 5 100)))) 100))
-    ;; The first post in a thread should be the same no matter how many posts you request
-    (is (= (:post (first (:replies (dangeru/thread "tech" 1 100))))
-           (:post (first (:replies (dangeru/thread "tech" 5 100))))))))
+  (testing "thread-replies, thread-metadata"
+    ;; Make sure different threads yield different results
+    (is (not= (dangeru/thread-replies 25295) (dangeru/thread-replies 25662)))
+    ;; Make sure we're getting good metadata
+    (is (= (:post_id (dangeru/thread-metadata 25662)) 25662))))
+(deftest new-thread-test
+  (testing "new-thread"
+    ;; Make sure we can start a thread on test
+    (is (= 200 (dangeru/new-thread "test" "Testing clojure wrapper" "Ignore this thread (or reply, whatever floats your boat)")))))
+(deftest reply-test
+  (testing "reply, index"
+    ;; Grab the newest thread on test (probably the one we just made) and make sure we can reply (note: grabbing second thread because the first is the dashchan sticky (here's hoping test only ever has one sticky))
+    (is (= 200 (dangeru/reply "test" (:post_id (nth (dangeru/index "test") 1)) "More clojure wrapper testing")))))
